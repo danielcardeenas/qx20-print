@@ -1,0 +1,14 @@
+# Swift / app build output
+.build/
+build/
+*.xcodeproj/xcuserdata/
+.swiftpm/
+
+# Python
+python/.venv/
+__pycache__/
+
+# Printer Wi-Fi key for python/qx20-print.sh
+.qx20.env
+
+.DS_Store
