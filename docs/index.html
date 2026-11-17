@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QX20 Print</title>
+<meta name="description" content="A small Mac app for the Canon SELPHY QX20.">
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ebe9e4;
+    --ink: #22211f;
+    --muted: #8a867e;
+    --coral: #e2553f;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html {
+    -webkit-text-size-adjust: 100%;
+    min-height: 100%;
+    background: var(--bg) radial-gradient(120% 90% at 50% 30%, #f6f4f0 0%, #ebe8e2 55%, #dedad2 100%) no-repeat;
+    background-size: 100% 100%;
+  }
+  body {
+    color: var(--ink);
+    min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    font: 500 14px/1.4 "Inter", system-ui, sans-serif;
+    letter-spacing: -.011em;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+  .stage {
+    position: relative;
+    width: calc(var(--P) * 1.3);
+    height: calc(var(--P) * 2.55);
+  }
+
+  /* ---------- printer ---------- */
+  .device {
+    position: absolute; left: calc(var(--P) * .15); top: 0; z-index: 2;
+    width: var(--P); height: calc(var(--P) * 1.42);
+  }
+  .face {
+    position: absolute; inset: 0;
+    border-radius: calc(var(--P) * .075);
+  }
+  .face {
+    background:
+      radial-gradient(140% 90% at 15% 0%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%),
+      linear-gradient(170deg, #f1ede6 0%, #e4dfd5 60%, #dad4c8 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.5),
+      inset 0 calc(var(--P) * -.02) calc(var(--P) * .04) rgba(80,65,40,.08),
+      inset calc(var(--P) * -.015) 0 calc(var(--P) * .03) rgba(80,65,40,.06),
+      0 calc(var(--P) * .012) 0 #cbc4b7,
+      0 calc(var(--P) * .16) calc(var(--P) * .22) calc(var(--P) * -.13) rgba(60,50,35,.5);
+    cursor: pointer;
+  }
+  .face:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+  .logo {
+    position: absolute; left: calc(var(--P) * .1); top: calc(var(--P) * .175);
+    font: 800 calc(var(--P) * .118)/1 "Crimson Pro", Georgia, serif;
+    letter-spacing: -.01em;
+    color: #bdb4a6;
+    text-shadow: 0 1px 0 rgba(255,255,255,.75), 0 -1px 0 rgba(90,75,50,.18);
+  }
+  .power {
+    position: absolute; right: calc(var(--P) * .085); top: calc(var(--P) * .155);
+    width: calc(var(--P) * .1); height: calc(var(--P) * .1); border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #f4f1eb, #e2ddd3 70%, #d4cec2);
+    box-shadow:
+      0 0 0 calc(var(--P) * .012) #d3ccc0,
+      0 0 0 calc(var(--P) * .016) rgba(255,255,255,.75),
+      inset 0 -1px 2px rgba(80,65,40,.2);
+  }
+  .power::after {                                  /* ⏻ glyph */
+    content: ""; position: absolute; inset: 30%;
+    border: calc(var(--P) * .006) solid #a59c8e; border-top-color: transparent; border-radius: 50%;
+  }
+  .power::before {
+    content: ""; position: absolute; left: 50%; top: 24%;
+    width: calc(var(--P) * .006); height: 28%; margin-left: calc(var(--P) * -.003);
+    background: #a59c8e; border-radius: 9px; z-index: 1;
+  }
+  .status {
+    position: absolute; right: calc(var(--P) * .07); top: calc(var(--P) * .3);
+    display: flex; gap: calc(var(--P) * .035);
+    font: 600 calc(var(--P) * .026)/1 "Inter", system-ui, sans-serif; letter-spacing: .02em;
+    color: #aaa194;
+  }
+  .status span { display: flex; align-items: center; gap: calc(var(--P) * .012); }
+  .status i { width: calc(var(--P) * .018); height: calc(var(--P) * .018); border-radius: 50%; background: #8f877a; display: block; }
+  .status .on i { background: #7fbf6a; box-shadow: 0 0 calc(var(--P) * .02) #9fdc8a; }
+  .device.busy .status .on i { animation: blink .5s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  .grille {
+    position: absolute;
+    left: calc(var(--P) * .1); right: calc(var(--P) * .09);
+    top: calc(var(--P) * .42); bottom: calc(var(--P) * .085);
+    background-image:
+      radial-gradient(circle at 40% 35%, rgba(255,255,255,.75) 0 18%, transparent 24%),
+      radial-gradient(circle at 55% 60%, rgba(80,65,40,.22) 0 30%, transparent 38%);
+    background-size: calc(var(--P) * .027) calc(var(--P) * .027);
+  }
+
+  /* ---------- the print: square paper, photo on top, white strip below ---------- */
+  .print {
+    --gx: 30%; --gy: 20%; --sx: 0%;
+    position: absolute; z-index: 1; left: 0; top: 0;
+    width: calc(var(--P) * .72); aspect-ratio: 72 / 85;
+    border-radius: calc(var(--P) * .008);
+    background: #f8f6f1;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.05), 0 1px 2px rgba(20,18,15,.2);
+    overflow: hidden;
+    will-change: transform;
+  }
+  .photo {
+    position: absolute; left: 3.5%; right: 3.5%; top: 3%;
+    aspect-ratio: 1;
+    background: url(collage.jpg) center / cover;
+    opacity: 0;
+    transition: opacity 1s linear, filter 1s linear;
+  }
+  /* dye-sub passes: yellow, magenta, cyan */
+  .print[data-pass="1"] .photo { opacity: .55; filter: grayscale(1) sepia(1) saturate(3.5) hue-rotate(8deg) brightness(1.08); }
+  .print[data-pass="2"] .photo { opacity: .85; filter: sepia(.55) saturate(1.8) hue-rotate(-28deg) contrast(.92); }
+  .print[data-pass="3"] .photo { opacity: 1; filter: none; }
+  .print::before {                                 /* soft light from the overcoat */
+    content: ""; position: absolute; inset: 0; z-index: 1;
+    background: radial-gradient(120% 70% at var(--gx) var(--gy), rgba(255,255,255,.18), rgba(255,255,255,0) 60%);
+    opacity: 0; transition: opacity 1.2s;
+  }
+  .print::after {                                  /* glare streak */
+    content: ""; position: absolute; inset: -50%; z-index: 1;
+    background: linear-gradient(115deg,
+      transparent 40%, rgba(255,255,255,.08) 46%, rgba(255,255,255,.2) 48.5%,
+      rgba(255,255,255,.04) 50.5%, transparent 56%);
+    transform: translateX(var(--sx));
+    opacity: 0; transition: opacity 1.2s, transform 1.2s var(--ease);
+    pointer-events: none;
+  }
+  .print.gloss::before, .print.gloss::after { opacity: 1; }
+  .print.free { box-shadow: inset 0 0 0 1px rgba(0,0,0,.04), 0 calc(var(--P) * .05) calc(var(--P) * .09) calc(var(--P) * -.03) rgba(20,18,15,.5); }
+  .print.free:hover::after { transform: translateX(-16%); }
+  .print:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  /* viewer */
+  .viewer {
+    position: fixed; inset: 0; z-index: 10;
+    background: rgba(235,233,228,.86);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity .45s ease;
+  }
+  .viewer.on { opacity: 1; pointer-events: auto; cursor: zoom-out; }
+  .big { position: fixed !important; z-index: 11; cursor: zoom-out; transition: none !important; }
+  .big::after { transition: none; }
+  .big:focus, .big:focus-visible { outline: none; }
+
+  /* ---------- CLI / Desktop panel ---------- */
+  .scene {
+    --P: min(210px, 50vw, 27vh);                  /* printer width; body ≈ 100 × 142 × 33 mm */
+    display: flex; align-items: flex-start; justify-content: center; gap: clamp(32px, 6vw, 88px);
+  }
+  /* centre the window (not the tabs) on the printer body, which is 1.42 P tall */
+  .side { width: min(340px, calc(100vw - 40px)); margin-top: max(0px, calc(var(--P) * .71 - 108px - 36px)); }
+  .tabs { display: flex; gap: 20px; margin: 0 0 14px 4px; font: 500 13px/1 "Inter", system-ui, sans-serif; letter-spacing: -.01em; }
+  .tabs button { color: var(--muted); padding: 4px 0; border-bottom: 1px solid transparent; transition: color .2s, border-color .2s; }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-color: var(--ink); }
+  .panel { position: relative; height: 216px; }
+  .panel > * { position: absolute; inset: 0; transition: opacity .35s ease, transform .35s var(--ease); }
+  .panel > [hidden] { display: block; opacity: 0; transform: translateY(6px); pointer-events: none; }
+
+  /* desktop app mock */
+  .app {
+    background: #f7f6f3; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 24px 48px -24px rgba(34,33,31,.45);
+    font: 600 10px/1.2 "Inter", system-ui, sans-serif; color: var(--ink);
+    display: flex; flex-direction: column;
+  }
+  .app-bar { height: 28px; flex: none; display: flex; align-items: center; gap: 6px; padding: 0 11px; border-bottom: 1px solid #e6e4df; position: relative; }
+  .app-bar i { width: 9px; height: 9px; border-radius: 50%; }
+  .app-bar i:nth-child(1) { background: #ff5f57; } .app-bar i:nth-child(2) { background: #febc2e; } .app-bar i:nth-child(3) { background: #28c840; }
+  .app-bar span { margin-left: 8px; color: #3c3a36; font-size: 10.5px; }
+  .app-tools { margin-left: auto; display: flex; gap: 9px; color: #7a766e; }
+  .app-tools svg { width: 12px; height: 12px; display: block; }
+  .app-body { flex: 1; display: grid; grid-template-columns: 62px 1fr 104px; min-height: 0; }
+  .app-side { background: #eeede9; border-right: 1px solid #e3e1dc; padding: 8px 6px; }
+  .app-row { display: flex; align-items: center; gap: 5px; padding: 4px; border-radius: 5px; background: #dedcd6; }
+  .app-row b { width: 15px; aspect-ratio: 72/85; background: #fff; border-radius: 1px; box-shadow: 0 0 0 .5px rgba(0,0,0,.15); position: relative; }
+  .app-row b::after { content: ""; position: absolute; left: 6%; right: 6%; top: 5%; aspect-ratio: 1; background: url(collage.jpg) center/cover; }
+  .app-row s { flex: 1; height: 4px; border-radius: 2px; background: #c9c6bf; text-decoration: none; }
+  .app-canvas { background: #d6d4ce; display: grid; place-items: center; }
+  .app-sheet { width: 74px; aspect-ratio: 72/85; background: #fff; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+  .app-sheet::before { content: ""; position: absolute; left: 3.5%; right: 3.5%; top: 3%; aspect-ratio: 1; background: url(collage.jpg) center/cover; }
+  .app-sheet::after { content: ""; position: absolute; inset: 2px; border: 1px dashed rgba(226,85,63,.55); }
+  .app-insp { padding: 9px 8px; display: flex; flex-direction: column; gap: 7px; border-left: 1px solid #e6e4df; background: #fbfaf8; }
+  .seg { display: flex; background: #ecebe7; border-radius: 5px; padding: 2px; }
+  .seg span { flex: 1; text-align: center; padding: 3px 0; border-radius: 4px; color: #6f6b64; font-size: 9px; }
+  .seg .on { background: #2f6fec; color: #fff; }
+  .ph { height: 4px; border-radius: 2px; background: #e6e4df; }
+  .ph.s { width: 60%; }
+  .app-status { margin-top: auto; font-size: 9px; color: #6f6b64; min-height: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-prog { height: 3px; border-radius: 2px; background: #e6e4df; overflow: hidden; }
+  .app-prog i { display: block; height: 100%; width: 0; background: #2f6fec; transition: width .6s ease; }
+  .app-btn { background: #2f6fec; color: #fff; border-radius: 99px; text-align: center; padding: 6px 0; font-size: 9.5px; transition: transform .12s, filter .12s; }
+  .app-btn.press { transform: scale(.94); filter: brightness(.9); }
+  .cursor { position: absolute; left: 0; top: 0; width: 14px; height: 20px; pointer-events: none; z-index: 2; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); opacity: 0; }
+
+  /* ---------- terminal ---------- */
+  .term {
+    background: #23221f; color: #d9d4ca;
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 24px 48px -24px rgba(34,33,31,.6);
+    font: 400 11.5px/1.65 ui-monospace, "SF Mono", Menlo, monospace;
+    overflow: hidden;
+  }
+  .term-bar { display: flex; gap: 6px; padding: 11px 12px 0; }
+  .term-bar i { width: 9px; height: 9px; border-radius: 50%; background: #3b3934; }
+  .term pre {
+    margin: 0; padding: 10px 16px 16px;
+    height: 188px;
+    white-space: pre-wrap; word-break: break-word;
+    font: inherit;
+  }
+  .term .p { color: #8a867e; }
+  .term .c { color: #f3eee5; }
+  .term .d { color: #8a867e; }
+  .term .ok { color: #9fdc8a; }
+  .term .y { color: #f2d23c; } .term .m { color: #e0569a; } .term .cy { color: #4fb3e0; } .term .w { color: #f3eee5; }
+  .caret { display: inline-block; width: .6em; height: 1.1em; vertical-align: -.2em; background: #d9d4ca; animation: caret 1s steps(2) infinite; }
+  @keyframes caret { 50% { opacity: 0; } }
+  @media (max-width: 760px) {
+    body { padding: 24px 0 32px; justify-content: flex-start; }
+    .scene { display: contents; }
+    .stage { order: 1; }
+    nav { order: 2; margin: 4px 0 36px; }
+    .side { order: 3; }
+    .scene { --P: min(176px, 46vw, 23vh); }
+    .side { margin-top: 0; }
+    .panel { height: 196px; }
+    .term pre { height: 168px; }
+  }
+
+  nav {
+    margin-top: 40px;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 16px;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 38px; padding: 0 16px 0 13px; border-radius: 999px;
+    font: 500 14px/1 "Inter", system-ui, sans-serif; letter-spacing: -.011em;
+    color: var(--ink); text-decoration: none;
+    background: rgba(255,255,255,.55);
+    box-shadow: inset 0 0 0 1px rgba(34,33,31,.1);
+    transition: background .2s, transform .2s, box-shadow .2s;
+  }
+  .btn:hover { background: rgba(255,255,255,.9); transform: translateY(-1px); }
+  .btn svg { width: 16px; height: 16px; flex: none; }
+  .btn.primary { background: var(--ink); color: #f6f4f0; box-shadow: 0 8px 20px -10px rgba(34,33,31,.6); }
+  .btn.primary:hover { background: #000; }
+</style>
+</head>
+<body>
+
+<div class="scene">
+<div class="side">
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-mode="cli">CLI</button>
+    <button role="tab" aria-selected="false" data-mode="app">Desktop</button>
+  </div>
+  <div class="panel" aria-hidden="true">
+    <div class="term" data-panel="cli"><div class="term-bar"><i></i><i></i><i></i></div><pre id="term"></pre></div>
+    <div class="app" data-panel="app" hidden>
+      <div class="app-bar"><i></i><i></i><i></i><span>QX20 Print</span>
+        <div class="app-tools">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3 2 5.5 4.5 8M2 5.5h5a3 3 0 0 1 0 6H5.5"/></svg>
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".45"><path d="M7.5 3 10 5.5 7.5 8M10 5.5H5a3 3 0 0 0 0 6h1.5"/></svg>
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="2" width="9" height="8" rx="1.5"/><path d="M7.5 2v8"/></svg>
+        </div>
+      </div>
+      <div class="app-body">
+        <div class="app-side"><div class="app-row"><b></b><s></s></div></div>
+        <div class="app-canvas"><div class="app-sheet"></div></div>
+        <div class="app-insp">
+          <div class="seg"><span>Card</span><span class="on">Square</span></div>
+          <div class="ph"></div><div class="ph s"></div><div class="ph"></div>
+          <div class="app-status" id="appStatus">Ready</div>
+          <div class="app-prog"><i id="appProg"></i></div>
+          <div class="app-btn" id="appBtn">Print Sheet</div>
+        </div>
+      </div>
+      <svg class="cursor" id="cursor" viewBox="0 0 14 20"><path d="M1 1v15l4-3.6 2.6 6 2.4-1-2.6-5.8H13z" fill="#111" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+</div>
+<main class="stage" id="stage">
+  <button class="print" id="print" aria-label="Square print, 72 × 85 mm" tabindex="-1"><span class="photo"></span></button>
+  <div class="device" id="device">
+    <div class="face" id="face" role="button" tabindex="0" aria-label="Canon SELPHY QX20 — print">
+      <span class="logo" aria-hidden="true">Canon</span>
+      <span class="power" aria-hidden="true"></span>
+      <span class="status" aria-hidden="true"><span><i></i>CHARGE</span><span class="on"><i></i>STATUS</span></span>
+      <span class="grille" aria-hidden="true"></span>
+    </div>
+  </div>
+</main>
+</div>
+
+<nav>
+  <a class="btn" href="https://github.com/danielcardeenas/qx20-print">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+    GitHub
+  </a>
+  <a class="btn primary" href="https://github.com/danielcardeenas/qx20-print/releases/latest">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5v8m0 0L4.75 7.25M8 10.5l3.25-3.25M3 13.5h10"/></svg>
+    Download
+  </a>
+  <a class="btn" href="https://github.com/danielcardeenas/qx20-print/blob/main/docs/CLI.md">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="10.5" rx="2"/><path d="m4.75 6.25 2 1.75-2 1.75M8.5 10h2.75"/></svg>
+    CLI
+  </a>
+</nav>
+
+<div class="viewer" id="viewer"></div>
+
+<script>
+(function () {
+  const stage = document.getElementById("stage");
+  const device = document.getElementById("device");
+  const face = document.getElementById("face");
+  const print = document.getElementById("print");
+  const viewer = document.getElementById("viewer");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* place the print right behind the bottom edge of the front face */
+  let P, y0, x0;
+  function layout() {
+    P = device.offsetWidth;
+    const s = stage.getBoundingClientRect(), f = face.getBoundingClientRect();
+    x0 = (f.left + f.width / 2) - s.left - print.offsetWidth / 2;
+    y0 = f.bottom - s.top - print.offsetHeight - P * .06;   // hidden inside
+    if (!busy && !print.classList.contains("free")) put(0, 0);
+  }
+  const put = (dy, r) => { print.style.transform = `translate(${x0}px, ${y0 + dy}px) rotate(${r}deg)`; };
+  const move = (dy, r, ms, easing = "cubic-bezier(.45,0,.3,1)") => {
+    const to = `translate(${x0}px, ${y0 + dy}px) rotate(${r}deg)`;
+    if (reduce) { print.style.transform = to; return Promise.resolve(); }
+    const a = print.animate([{ transform: print.style.transform }, { transform: to }], { duration: ms, easing });
+    print.style.transform = to;
+    return a.finished.catch(() => {});
+  };
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+
+  /* terminal: types the command, then mirrors what the printer does */
+  const term = document.getElementById("term");
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  let tlines = [], typing = "";
+  function draw(caret = true) {
+    term.innerHTML = tlines.join("\n") + (tlines.length ? "\n" : "") + typing + (caret ? '<span class="caret"></span>' : "");
+  }
+  const tline = (html) => { tlines.push(html); draw(); };
+  const tset = (html) => { tlines[tlines.length - 1] = html; draw(); };
+  async function ttype(cmd, id) {
+    typing = '<span class="p">$ </span>';
+    draw();
+    for (let i = 1; i <= cmd.length; i++) {
+      if (id !== run) return;
+      typing = '<span class="p">$ </span><span class="c">' + esc(cmd.slice(0, i)) + "</span>";
+      draw();
+      await wait(28 + Math.random() * 40);
+    }
+    await wait(260);
+    tlines.push(typing); typing = ""; draw();
+  }
+  const bar = (n) => "■".repeat(n) + "□".repeat(4 - n);
+  const PASS = [["y", "yellow"], ["m", "magenta"], ["cy", "cyan"], ["w", "overcoat"]];
+  const tpass = (i) => tset(`<span class="d">${bar(i)}</span> Printing <span class="${PASS[i - 1][0]}">${PASS[i - 1][1]}</span><span class="d"> ${i * 25}%</span>`);
+
+  /* desktop app mock */
+  const appStatus = document.getElementById("appStatus");
+  const appProg = document.getElementById("appProg");
+  const appBtn = document.getElementById("appBtn");
+  const cursor = document.getElementById("cursor");
+  const appEl = document.querySelector(".app");
+  const setApp = (t, pct) => { appStatus.innerHTML = t; appProg.style.width = pct + "%"; };
+
+  const UI = {
+    cli: {
+      async start(id) {
+        tlines = []; typing = ""; draw();
+        await wait(400);
+        await ttype("qx20 print collage.jpg --paper square", id);
+        if (id !== run) return;
+        tline('<span class="d">1 sheet on square paper</span>');
+        await wait(450);
+        tline("Connecting to QX20-7F2…");
+        await wait(900);
+        if (id !== run) return;
+        tset('<span class="d">Connected to QX20-7F2</span>');
+        tline("");
+      },
+      pass: tpass,
+      async done(id) {
+        tset('<span class="d">■■■■</span> <span class="ok">✓</span> Printed 1 sheet');
+        await wait(500);
+        if (id !== run) return;
+        tline('<span class="d">Back on your Wi-Fi</span>');
+      },
+    },
+    app: {
+      async start(id) {
+        setApp("Ready", 0);
+        const W = appEl.clientWidth, H = appEl.clientHeight;
+        const b = appBtn.getBoundingClientRect(), a = appEl.getBoundingClientRect();
+        const bx = b.left - a.left + b.width * .45, by = b.top - a.top + b.height * .45;
+        cursor.style.opacity = 1;
+        if (!reduce) await cursor.animate(
+          [{ transform: `translate(${W * .35}px, ${H * .55}px)` }, { transform: `translate(${bx}px, ${by}px)` }],
+          { duration: 1100, easing: "cubic-bezier(.3,.1,.2,1)", fill: "forwards" }).finished.catch(() => {});
+        cursor.style.transform = `translate(${bx}px, ${by}px)`;
+        if (id !== run) return;
+        appBtn.classList.add("press");
+        await wait(140);
+        appBtn.classList.remove("press");
+        setApp("Connecting to QX20-7F2…", 4);
+        await wait(1000);
+        if (!reduce) cursor.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: "forwards" });
+      },
+      pass(i) { setApp(`Printing ${PASS[i - 1][1]}`, i * 25); },
+      async done() { setApp("Printed ✓", 100); },
+    },
+  };
+  let mode = "cli";
+  document.querySelectorAll(".tabs button").forEach(t => t.addEventListener("click", () => {
+    if (t.dataset.mode === mode) return;
+    mode = t.dataset.mode;
+    document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", b === t));
+    document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== mode);
+    cursor.getAnimations().forEach(a => a.cancel());
+    cursor.style.opacity = 0;
+    printOnce();
+  }));
+
+  /* dye-sub: yellow, magenta, cyan, then the overcoat — four passes */
+  const passes = [1, 2, 3];
+  let busy = false, run = 0;
+  async function printOnce() {
+    const id = ++run;
+    busy = true;
+    hide();
+    device.classList.add("busy");
+    print.getAnimations().forEach(a => a.cancel());
+    print.classList.remove("gloss", "free");
+    print.style.transition = "none";
+    print.dataset.pass = 0;
+    print.style.zIndex = 1;
+    put(0, 0);
+    print.offsetWidth;
+    print.style.transition = "";
+    const ui = UI[mode];
+    await ui.start(id);
+    for (const c of passes) {
+      if (id !== run) return;
+      // the head lays this colour while the paper feeds out; label and ink change together
+      ui.pass(c);
+      print.dataset.pass = c;
+      await move(P * .5, 0, 1000);
+      await wait(120);
+      if (id !== run) return;
+      await move(0, 0, 1000);
+      await wait(160);
+    }
+    if (id !== run) return;
+    ui.pass(4);
+    print.classList.add("gloss");
+    await move(P * 1.02, 0, 1500, "cubic-bezier(.4,0,.6,1)");
+    if (id !== run) return;
+    print.classList.add("free");
+    print.style.zIndex = 3;
+    print.tabIndex = 0;
+    await move(P * 1.1, -2, 520, "cubic-bezier(.3,1.4,.5,1)");
+    await ui.done(id);
+    if (id !== run) return;
+    device.classList.remove("busy");
+    busy = false;
+  }
+  face.addEventListener("click", printOnce);
+  face.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); printOnce(); } });
+
+  /* tap the finished print: it flies to the centre (FLIP), tap again to put it back */
+  let open = null;
+  const dur = reduce ? 1 : 620;
+  const ease = "cubic-bezier(.2,.8,.2,1)";
+  function fromTransform(clone) {
+    const a = print.getBoundingClientRect(), b = clone.getBoundingClientRect();
+    const s = print.offsetWidth / clone.offsetWidth;
+    const dx = (a.left + a.width / 2) - (b.left + b.width / 2);
+    const dy = (a.top + a.height / 2) - (b.top + b.height / 2);
+    return `translate(${dx}px, ${dy}px) rotate(-2deg) scale(${s})`;
+  }
+  function show() {
+    if (open || !print.classList.contains("free")) return;
+    const h = Math.min(innerHeight * .72, 580);
+    const w = Math.min(h * 72 / 85, innerWidth - 48);
+    const hh = w * 85 / 72;
+    const clone = print.cloneNode(true);
+    clone.removeAttribute("id");
+    clone.classList.add("big");
+    clone.style.cssText = print.style.cssText + `;width:${w}px; left:${(innerWidth - w) / 2}px; top:${(innerHeight - hh) / 2}px; transform:none; border-radius:${w * .011}px; z-index:11;`;
+    document.body.appendChild(clone);
+    clone.animate([{ transform: fromTransform(clone) }, { transform: "none" }], { duration: dur, easing: ease });
+    print.style.visibility = "hidden";
+    viewer.classList.add("on");
+    clone.addEventListener("click", hide);
+    clone.focus({ preventScroll: true });
+    open = clone;
+  }
+  function hide() {
+    if (!open) return;
+    const clone = open;
+    open = null;
+    viewer.classList.remove("on");
+    const a = clone.animate([{ transform: "none" }, { transform: fromTransform(clone) }], { duration: dur * .85, easing: ease, fill: "forwards" });
+    a.onfinish = () => { print.style.visibility = ""; clone.remove(); };
+  }
+  addEventListener("pointermove", e => {
+    if (!open) return;
+    const x = e.clientX / innerWidth, y = e.clientY / innerHeight;
+    open.style.setProperty("--gx", `${15 + x * 70}%`);
+    open.style.setProperty("--gy", `${10 + y * 60}%`);
+    open.style.setProperty("--sx", `${(x - .5) * 50}%`);
+  }, { passive: true });
+
+  print.addEventListener("click", show);
+  viewer.addEventListener("click", hide);
+  addEventListener("keydown", e => { if (e.key === "Escape") hide(); });
+  addEventListener("resize", () => {
+    hide();
+    layout();
+    if (print.classList.contains("free")) put(P * 1.1, -2);
+  });
+
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { layout(); setTimeout(printOnce, 200); });
+  layout();
+})();
+</script>
+</body>
+</html>
