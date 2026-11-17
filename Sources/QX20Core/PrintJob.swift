@@ -27,6 +27,11 @@ public struct PrintOptions: Sendable {
     /// Leave the printer's Wi-Fi when done so macOS rejoins the usual network.
     public var returnToNetwork = true
     public var printerIP = "192.168.0.1"
+    /// CPNP ports (only changed to test against scripts/fake_qx20.py).
+    public var printerPort: UInt16 = 8609
+    public var localPort: UInt16 = 8609
+    /// Check that the Mac is on the printer's network first (off for tests).
+    public var requirePrinterNetwork = true
 
     public init(settings: PrintSettings, sizeCode: Int, ssid: String, password: String) {
         self.settings = settings; self.sizeCode = sizeCode; self.ssid = ssid; self.password = password
@@ -64,6 +69,7 @@ public enum PrintJob {
                                              body: () throws -> T) throws -> T {
         let wifi = WiFi.shared
         let log: (String) -> Void = { onEvent(.log($0)) }
+        if !options.requirePrinterNetwork { return try body() }
         var joined = false
         var joinedSSID = options.ssid
 
@@ -130,7 +136,7 @@ public enum PrintJob {
                 var ok = false
                 for attempt in 1...3 {
                     if attempt > 1 { log(String(localized: "Retry \(attempt)…")) }
-                    let printer = QX20Printer(ip: options.printerIP)
+                    let printer = QX20Printer(ip: options.printerIP, port: options.printerPort, localPort: options.localPort)
                     do {
                         try printer.printJPEG(jpeg, width: width, height: height, sizeCode: options.sizeCode) { ev in
                             switch ev {
@@ -182,7 +188,7 @@ public enum PrintJob {
     public static func checkStatus(options: PrintOptions,
                                    onEvent: @escaping (JobEvent) -> Void) throws -> (String, PrinterStatus) {
         try withPrinterNetwork(options, onEvent: onEvent) {
-            let printer = QX20Printer(ip: options.printerIP)
+            let printer = QX20Printer(ip: options.printerIP, port: options.printerPort, localPort: options.localPort)
             let device = try printer.discover()
             let status = try printer.status()
             return (device, status)

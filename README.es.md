@@ -21,6 +21,9 @@ cualquier otro idioma).
 - **Imprimir con un clic.** La app se conecta sola al Wi-Fi de la impresora,
   imprime y regresa tu Mac a tu red de siempre.
 - **Las hojas se guardan** entre sesiones.
+- **También desde la terminal:** `qx20 print foto.jpg`, con salida JSON y
+  códigos de salida estables para scripts y agentes de IA; ver
+  [docs/CLI.md](docs/CLI.md) (en inglés).
 
 ## Instalación
 
@@ -69,6 +72,17 @@ y el zip para Releases. También puedes abrir `Package.swift` en Xcode.
    caracteres. Deja *Red* vacía y la app la encuentra sola.
 3. Prende la impresora, carga papel y tinta, agrega una foto y presiona
    **Imprimir hoja**.
+
+## Línea de comandos
+
+```bash
+qx20 setup                                  # primera vez: permiso, clave, impresoras
+qx20 print foto.jpg                         # se conecta a la impresora, imprime y regresa
+qx20 print logo.svg --per-sheet 6 --repeat --guides
+qx20 status --json
+```
+
+Referencia completa, salida JSON y códigos de salida: [docs/CLI.md](docs/CLI.md).
 
 ## Uso
 

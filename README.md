@@ -20,6 +20,8 @@ The app is in **English and Spanish** and follows your Mac's language
 - **One-click printing.** The app joins the printer's Wi-Fi by itself, prints
   and returns your Mac to your usual network.
 - **Sheets are saved** between launches.
+- **Command line too:** `qx20 print photo.jpg`, with JSON output and stable
+  exit codes for scripts and AI agents — see [docs/CLI.md](docs/CLI.md).
 
 ## Install
 
@@ -67,6 +69,17 @@ and the zip used for Releases. You can also open `Package.swift` in Xcode.
    empty and the app finds it by itself.
 3. Turn the printer on, load paper and ink, add a photo and press
    **Print Sheet**.
+
+## Command line
+
+```bash
+qx20 setup                                  # first time: permission, key, printers
+qx20 print photo.jpg                        # joins the printer Wi-Fi, prints, comes back
+qx20 print logo.svg --per-sheet 6 --repeat --guides
+qx20 status --json
+```
+
+Full reference, JSON output and exit codes: [docs/CLI.md](docs/CLI.md).
 
 ## Using it
 
@@ -116,7 +129,7 @@ and the zip used for Releases. You can also open `Package.swift` in Xcode.
 | `Sources/QX20Core/WiFi.swift` | Join / leave the printer network (CoreWLAN) |
 | `Sources/QX20Core/PrintJob.swift` | Network switching, watchdog, retries |
 | `Sources/QX20Print/` | SwiftUI app |
-| `Sources/qx20tool/` | CLI: `render`, `compose`, `status`, `print`, `packets` |
+| `Sources/qx20/` | `qx20` command line tool ([docs/CLI.md](docs/CLI.md)) |
 | `Resources/*.lproj` | English and Spanish strings |
 | `scripts/fake_qx20.py` | Fake printer to test without hardware |
 | `scripts/localize.py` | Extracts strings and checks the Spanish translation |
@@ -136,7 +149,7 @@ python3 scripts/localize.py     # fails listing any missing translation
 ```bash
 python3 scripts/fake_qx20.py --log /tmp/fake.jsonl &     # --fail-paper simulates an empty cassette
 swift build -c release
-.build/release/qx20tool print photo.jpg --ip 127.0.0.1 --port 18610 --local-port 18609
+.build/release/qx20 print photo.jpg --ip 127.0.0.1 --port 18610 --local-port 18609
 ```
 
 The fake printer logs every packet. The Swift driver's traffic matches the
