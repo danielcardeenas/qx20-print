@@ -29,8 +29,8 @@ cualquier otro idioma).
 
 ### Opción A: descargar
 
-1. Descarga `QX20-Print-<versión>-macOS.zip` de
-   [Releases](https://github.com/danielcardeenas/qx20-print/releases), descomprímelo y mueve **QX20 Print** a
+1. Descarga `QX20-Print-<versión>-macOS.dmg` de
+   [Releases](https://github.com/danielcardeenas/qx20-print/releases), ábrelo y arrastra **QX20 Print** a
    *Aplicaciones*.
 2. La app no está firmada con una cuenta de pago de Apple Developer, así que
    la primera vez macOS dirá que no puede verificar al desarrollador. Puedes:
@@ -58,7 +58,7 @@ carpeta de usuario, así que nunca les da el permiso de Ubicación (si la abres
 desde otro lugar, la app ofrece moverse sola).
 
 `./build-app.sh --release` compila una app universal (Apple Silicon + Intel)
-y el zip para Releases. También puedes abrir `Package.swift` en Xcode.
+y el dmg para Releases. También puedes abrir `Package.swift` en Xcode.
 
 ## Primera vez
 

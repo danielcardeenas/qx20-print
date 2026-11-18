@@ -181,14 +181,20 @@ struct ConnectWizard: View {
                         Text("Check that the printer is on and the key is correct, then try again.")
                             .font(.callout)
                             .fixedSize(horizontal: false, vertical: true)
+                        TextField("Key", text: $key, prompt: Text(verbatim: "ABCDEFGHI"))
+                            .font(.system(.body, design: .monospaced))
+                            .textFieldStyle(.roundedBorder)
+                            .autocorrectionDisabled()
+                            .frame(maxWidth: 220)
+                            .padding(.top, 6)
+                            .onSubmit(retry)
                     }
                 }
             }
             .frame(minHeight: 44, alignment: .leading)
 
-            Button(model.lastCheckOK == nil ? LocalizedStringKey("Test Connection") : LocalizedStringKey("Test Again")) {
-                model.checkPrinter(showAlert: false)
-            }
+            Button(model.lastCheckOK == nil ? LocalizedStringKey("Test Connection") : LocalizedStringKey("Test Again"),
+                   action: retry)
             .disabled(model.isBusy)
         }
     }
@@ -236,6 +242,13 @@ struct ConnectWizard: View {
             model.checkPrinter(showAlert: false)
         case .test: break
         }
+    }
+
+    /// Test again with the key as it is now in the field (it may have been corrected).
+    private func retry() {
+        let k = key.trimmingCharacters(in: .whitespaces)
+        if !k.isEmpty && k != model.password { model.password = k }
+        model.checkPrinter(showAlert: false)
     }
 
     private func goBack() {

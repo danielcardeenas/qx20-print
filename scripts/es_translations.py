@@ -31,6 +31,14 @@ ES = {
     "Checking the printer…": "Consultando la impresora…",
     "Clear": "Limpiar",
     "Connected to the printer (%@).": "Conectado a la impresora (%@).",
+    "Waiting for the printer to answer…": "Esperando a que responda la impresora…",
+    "%@ didn’t accept the key. Check it, including uppercase and lowercase letters.": "%@ no aceptó la clave. Revísala, incluidas mayúsculas y minúsculas.",
+    "Connected": "Conectada",
+    "Enter the printer key in the Printer section. It’s printed inside the ink cassette cover.": "Escribe la clave de la impresora en la sección Impresora. Viene impresa dentro de la tapa del cartucho de tinta.",
+    "Not checked": "Sin comprobar",
+    "Search for printers": "Buscar impresoras",
+    "The key is printed inside the ink cassette cover.": "La clave viene impresa dentro de la tapa del cartucho de tinta.",
+    "This key doesn’t end in “%@” like %@.": "Esta clave no termina en “%@” como %@.",
     "Connecting (TCP %@)": "Conectando (TCP %@)",
     "Connecting to %@…": "Conectando a %@…",
     "Connection error (%@); retrying in 8 s…": "Error de conexión (%@); reintentando en 8 s…",
@@ -185,7 +193,6 @@ ES = {
     "Connect Printer Assistant…": "Asistente para conectar la impresora…",
     "Connect Printer…": "Conectar impresora…",
     "Connect your QX20": "Conecta tu QX20",
-    "Connect…": "Conectar…",
     "Continue": "Continuar",
     "Couldn’t connect": "No se pudo conectar",
     "Enter the printer key": "Escribe la clave de la impresora",
@@ -242,4 +249,5 @@ ES = {
 INFO_PLIST_ES = {
     "NSLocationUsageDescription": "macOS solo muestra los nombres de las redes Wi-Fi a apps con acceso a Ubicación. QX20 Print lo necesita para encontrar y conectarse a la red de tu impresora; nunca lee tu ubicación.",
     "NSLocationWhenInUseUsageDescription": "macOS solo muestra los nombres de las redes Wi-Fi a apps con acceso a Ubicación. QX20 Print lo necesita para encontrar y conectarse a la red de tu impresora; nunca lee tu ubicación.",
+    "NSLocalNetworkUsageDescription": "QX20 Print envía tus fotos a la impresora por su red Wi-Fi.",
 }

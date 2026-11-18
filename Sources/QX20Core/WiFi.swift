@@ -8,6 +8,8 @@ public enum WiFiError: LocalizedError {
     case notFound(String)
     case namesHidden
     case joinFailed(String)
+    /// The printer refused the key (CoreWLAN kCWChallengeFailureErr).
+    case wrongKey(String)
 
     public var errorDescription: String? {
         switch self {
@@ -21,6 +23,8 @@ public enum WiFiError: LocalizedError {
             return String(localized: "macOS hides Wi-Fi network names: allow Location access for QX20 Print in System Settings › Privacy & Security › Location Services.")
         case .joinFailed(let msg):
             return String(localized: "Couldn’t connect to the printer: \(msg)")
+        case .wrongKey(let ssid):
+            return String(localized: "\(ssid) didn’t accept the key. Check it, including uppercase and lowercase letters.")
         }
     }
 }
@@ -126,6 +130,8 @@ public final class WiFi: NSObject, CLLocationManagerDelegate {
         }
         do {
             try iface.associate(to: network, password: password)
+        } catch let error as NSError where error.code == CWErr.cwChallengeFailureErr.rawValue {
+            throw WiFiError.wrongKey(network.ssid ?? ssid)
         } catch {
             throw WiFiError.joinFailed(error.localizedDescription)
         }

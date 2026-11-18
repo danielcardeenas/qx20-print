@@ -27,8 +27,8 @@ The app is in **English and Spanish** and follows your Mac's language
 
 ### Option A — download
 
-1. Download `QX20-Print-<version>-macOS.zip` from
-   [Releases](https://github.com/danielcardeenas/qx20-print/releases), unzip it and move **QX20 Print** to
+1. Download `QX20-Print-<version>-macOS.dmg` from
+   [Releases](https://github.com/danielcardeenas/qx20-print/releases), open it and drag **QX20 Print** to
    *Applications*.
 2. The app is not signed with a paid Apple Developer ID, so the first time
    macOS says it can't verify the developer. Either:
@@ -56,7 +56,7 @@ folder, so it never grants them the Location permission (the app offers to
 move itself if you open it from elsewhere).
 
 `./build-app.sh --release` builds a universal app (Apple Silicon + Intel)
-and the zip used for Releases. You can also open `Package.swift` in Xcode.
+and the dmg used for Releases. You can also open `Package.swift` in Xcode.
 
 ## First run
 

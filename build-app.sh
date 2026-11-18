@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build "QX20 Print.app" into macos/build/.
 #   ./build-app.sh             build for this Mac
-#   ./build-app.sh --release   universal (Apple Silicon + Intel) + zip for GitHub Releases
+#   ./build-app.sh --release   universal (Apple Silicon + Intel) + dmg for GitHub Releases
 #   ./build-app.sh --install   build, copy to /Applications (needed for the Location
 #                              permission: macOS can't verify apps inside your home folder)
 #                              and link the `qx20` command line tool into your PATH
@@ -40,7 +40,7 @@ if [ -f Resources/AppIcon.icns ]; then
   /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" "$APP/Contents/Info.plist" >/dev/null
 fi
 
-# No Finder/quarantine metadata in the bundle (avoids "._" files in the zip)
+# No Finder/quarantine metadata in the bundle (avoids "._" files in the dmg)
 xattr -cr "$APP"
 
 # Ad-hoc signature: required so macOS can grant the Location permission.
@@ -50,11 +50,18 @@ echo "App: $(pwd)/$APP ($(lipo -archs "$APP/Contents/MacOS/QX20Print"))"
 
 if [ $RELEASE = 1 ]; then
   VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)"
-  ZIP="build/QX20-Print-$VERSION-macOS.zip"
-  rm -f "$ZIP"
-  ditto -c -k --norsrc --noextattr --keepParent "$APP" "$ZIP"
-  echo "Zip: $(pwd)/$ZIP"
-  shasum -a 256 "$ZIP"
+  DMG="build/QX20-Print-$VERSION-macOS.dmg"
+  # The app next to a link to /Applications: drag it there (the Location
+  # permission doesn't work for an app left in Downloads)
+  STAGE="$(mktemp -d)"
+  ditto "$APP" "$STAGE/QX20 Print.app"
+  ln -s /Applications "$STAGE/Applications"
+  rm -f "$DMG"
+  hdiutil create -volname "QX20 Print" -srcfolder "$STAGE" -fs HFS+ \
+    -format UDZO -imagekey zlib-level=9 -ov -quiet "$DMG"
+  rm -rf "$STAGE"
+  echo "Dmg: $(pwd)/$DMG"
+  shasum -a 256 "$DMG"
 fi
 
 if [ $INSTALL = 1 ]; then

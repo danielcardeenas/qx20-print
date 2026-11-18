@@ -113,8 +113,25 @@ public enum PrintJob {
                 wifi.leave()
             }
         }
-        sleep(2)
+        waitForPrinter(options, log: log)
         return try body()
+    }
+
+    /// Right after joining, macOS has an address but often can't reach the printer
+    /// yet ("No route to host", or no UDP reply) for a few seconds. Ask until it answers.
+    static func waitForPrinter(_ options: PrintOptions, log: (String) -> Void, seconds: Int = 20) {
+        let printer = QX20Printer(ip: options.printerIP, port: options.printerPort, localPort: options.localPort)
+        let deadline = Date().addingTimeInterval(TimeInterval(seconds))
+        var told = false
+        while true {
+            if (try? printer.discover()) != nil { return }
+            if Date() >= deadline { return }   // let the job report the real error
+            if !told {
+                log(String(localized: "Waiting for the printer to answer…"))
+                told = true
+            }
+            sleep(1)
+        }
     }
 
     /// Print several images in one Wi-Fi session. Returns how many failed.

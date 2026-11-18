@@ -41,22 +41,7 @@ struct Inspector: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Printer") {
-                    HStack {
-                        Image(systemName: "printer.fill")
-                            .foregroundStyle(.secondary)
-                        Text(model.printerSummary ?? (model.ssid.isEmpty ? "QX20" : model.ssid))
-                            .lineLimit(1)
-                        Spacer()
-                        if model.password.isEmpty {
-                            Button("Connect…") { model.showWizard = true }
-                                .disabled(model.isBusy)
-                        } else {
-                            Button("Check") { model.checkPrinter() }
-                                .disabled(model.isBusy)
-                        }
-                    }
-                }
+                PrinterSection()
             }
             .formStyle(.grouped)
             .scrollContentBackground(.hidden)
@@ -256,5 +241,107 @@ struct PrintFooter: View {
             }
         }
         .padding(16)
+    }
+}
+
+/// The printer's network and key, editable right here (the assistant is only
+/// for the first time).
+struct PrinterSection: View {
+    @EnvironmentObject var model: PrintModel
+    @State private var found: [FoundNetwork] = []
+    @State private var scanning = false
+
+    private var key: Binding<String> {
+        Binding(get: { model.password },
+                set: { model.password = $0.trimmingCharacters(in: .whitespaces) })
+    }
+
+    /// Networks to offer: the ones nearby plus the saved one if it isn't around.
+    private var networks: [String] {
+        var list = found.map(\.ssid)
+        if !model.ssid.isEmpty && !list.contains(model.ssid) { list.insert(model.ssid, at: 0) }
+        return list
+    }
+
+    var body: some View {
+        Section("Printer") {
+            HStack(spacing: 6) {
+                Picker("Network", selection: $model.ssid) {
+                    Text("Automatic").tag("")
+                    ForEach(networks, id: \.self) { Text(verbatim: $0).tag($0) }
+                }
+                Button(action: scan) {
+                    if scanning { ProgressView().controlSize(.small) }
+                    else { Image(systemName: "arrow.clockwise") }
+                }
+                .buttonStyle(.borderless)
+                .help("Search for printers")
+                .disabled(scanning || !model.hasLocationAccess)
+            }
+            TextField("Key", text: key, prompt: Text(verbatim: "ABCDEFGHI"))
+                .font(.system(.body, design: .monospaced))
+                .autocorrectionDisabled()
+            hint
+                .font(.caption)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack {
+                status
+                Spacer()
+                Button("Check") { model.checkPrinter() }
+                    .disabled(model.isBusy || model.password.isEmpty)
+            }
+        }
+        .disabled(model.isBusy)
+        .onAppear { if found.isEmpty && model.hasLocationAccess { scan() } }
+    }
+
+    @ViewBuilder
+    private var hint: some View {
+        let k = model.password
+        if k.isEmpty {
+            Text("The key is printed inside the ink cassette cover.")
+                .foregroundStyle(.orange)
+        } else if model.ssid.hasPrefix(WiFi.printerNetworkPrefix) {
+            let suffix = String(model.ssid.dropFirst(WiFi.printerNetworkPrefix.count))
+            if !k.hasSuffix(suffix) {
+                Label("This key doesn’t end in “\(suffix)” like \(model.ssid).",
+                      systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(.orange)
+            }
+        } else if k.count != 9 {
+            Label("The key usually has 9 characters (this one has \(k.count)).",
+                  systemImage: "exclamationmark.triangle")
+                .foregroundStyle(.orange)
+        } else if model.ssid.isEmpty {
+            Text("It will connect to QX20-\(String(k.suffix(3))).")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        switch model.lastCheckOK {
+        case true?:
+            Label(model.printerSummary ?? String(localized: "Connected"), systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+        case false?:
+            Label(model.lastCheckError ?? String(localized: "Couldn’t connect"), systemImage: "xmark.octagon.fill")
+                .foregroundStyle(.red)
+        case nil:
+            Label("Not checked", systemImage: "printer")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func scan() {
+        scanning = true
+        Thread.detachNewThread {
+            let nets = (try? WiFi.shared.scanForPrinters()) ?? []
+            DispatchQueue.main.async {
+                scanning = false
+                found = nets
+                if nets.count == 1, model.ssid.isEmpty { model.ssid = nets[0].ssid }
+            }
+        }
     }
 }

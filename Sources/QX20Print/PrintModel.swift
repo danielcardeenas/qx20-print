@@ -56,7 +56,7 @@ final class PrintModel: ObservableObject {
     @Published var gapMM: Double { didSet { settingsChanged() } }
     @Published var allowRotation: Bool { didSet { settingsChanged() } }
     @Published var cutGuides: Bool { didSet { settingsChanged(relayout: false) } }
-    @Published var ssid: String { didSet { save() } }
+    @Published var ssid: String { didSet { save(); if ssid != oldValue { lastCheckOK = nil } } }
     @Published var returnToNetwork: Bool { didSet { save() } }
     /// Media code for square paper: unknown until tested on hardware.
     @Published var squareSizeCode: String { didSet { save() } }
@@ -255,7 +255,7 @@ final class PrintModel: ObservableObject {
     /// the app's preferences: it only opens the printer's own local network.
     var password: String {
         get { defaults.string(forKey: "printerPassword") ?? "" }
-        set { defaults.set(newValue, forKey: "printerPassword"); objectWillChange.send() }
+        set { defaults.set(newValue, forKey: "printerPassword"); lastCheckOK = nil; objectWillChange.send() }
     }
 
     var sizeCode: Int? {
@@ -821,7 +821,7 @@ final class PrintModel: ObservableObject {
         }
         let pass = password
         guard !pass.isEmpty else {
-            showWizard = true
+            alertMessage = String(localized: "Enter the printer key in the Printer section. It’s printed inside the ink cassette cover.")
             return nil
         }
         var options = PrintOptions(settings: PrintSettings(paper: paper, mode: mode, borderMM: borderMM),
@@ -895,7 +895,7 @@ final class PrintModel: ObservableObject {
         guard !isBusy else { return }
         let pass = password
         guard !pass.isEmpty else {
-            showWizard = true
+            alertMessage = String(localized: "Enter the printer key in the Printer section. It’s printed inside the ink cassette cover.")
             return
         }
         lastCheckOK = nil

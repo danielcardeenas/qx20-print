@@ -101,7 +101,7 @@ Errors include a `hint` with the next step:
 | 2 | `usage` | Bad arguments or unreadable image |
 | 3 | `printer_error` | The printer stopped (usually no paper): load paper, power-cycle, retry |
 | 4 | `unreachable` | Printer off / Wi-Fi failed: turn it on, or join its Wi-Fi and use `--no-switch` |
-| 5 | `not_configured` | No key: `qx20 config set key <KEY>` |
+| 5 | `not_configured` | No key, or the printer refused it: `qx20 config set key <KEY>` (case-sensitive) |
 | 6 | `location_permission` | Run `qx20 setup` and allow Location, or use `--no-switch` |
 
 ### Recipes

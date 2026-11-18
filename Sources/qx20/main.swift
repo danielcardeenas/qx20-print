@@ -233,6 +233,9 @@ func classify(_ error: Error, noSwitch: Bool = false) -> (Exit, String, String?)
         return (.unreachable, message, "Is the printer on? \(noSwitchHint)")
     case let e as WiFiError:
         switch e {
+        case .wrongKey:
+            return (.notConfigured, message,
+                    "Set the key printed inside the ink cassette cover (case-sensitive): qx20 config set key <KEY>")
         case .namesHidden:
             return (.locationPermission,
                     "macOS hides Wi-Fi network names: QX20 Print doesn't have Location access yet.",

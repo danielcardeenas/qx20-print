@@ -46,6 +46,8 @@
 	<string>14.0</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>QX20 Print sends your photos to the printer over its Wi-Fi network.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>macOS only shows Wi-Fi network names to apps with Location access. QX20 Print needs them to find and join your printer’s network; it never reads your location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
