@@ -6,7 +6,7 @@ import QX20Core
 // qx20 — print on a Canon SELPHY QX20 from the terminal (for people, scripts and AI agents).
 // Shares its settings (printer key, network, paper) with the QX20 Print app.
 
-let version = "0.3.0"
+let version = "0.3.1"
 let appDomain = "io.github.danielcardeenas.qx20-print"
 
 // MARK: - Exit codes (stable, documented in docs/CLI.md)
