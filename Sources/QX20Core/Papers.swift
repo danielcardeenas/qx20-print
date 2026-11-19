@@ -43,8 +43,8 @@ public enum Paper: String, CaseIterable, Identifiable, Codable, Sendable {
     public var width: Int { self == .card ? 644 : 848 }
     public var height: Int { 826 }
 
-    /// StartPrint media code. The square code has not been verified yet.
-    public var defaultSizeCode: Int? { self == .card ? 18 : nil }
+    /// StartPrint media code (both verified on hardware).
+    public var defaultSizeCode: Int? { self == .card ? 18 : 17 }
 
     /// Millimetres lost on each side with borderless printing.
     /// Card measured with calibrate.py; square assumed equal (same overhang).

@@ -65,7 +65,7 @@ PRINTER OPTIONS (print, status)
   --stay                Stay on the printer's Wi-Fi afterwards
   --network SSID        Printer network (default: saved, else the strongest QX20-…)
   --key KEY             Printer key (default: saved)
-  --size-code N         StartPrint media code (square paper is not verified yet)
+  --size-code N         Override the StartPrint media code (card 18, square 17)
 
 OUTPUT
   --json                One JSON object per line on stdout (events + final result)
@@ -193,7 +193,7 @@ struct Settings {
     var network: String { defaults.string(forKey: "ssid") ?? "" }
     var paper: Paper { Paper(rawValue: defaults.string(forKey: "paper") ?? "") ?? .card }
     var returnToNetwork: Bool { defaults.object(forKey: "returnToNetwork") as? Bool ?? true }
-    var squareSizeCode: Int? { Int(defaults.string(forKey: "squareSizeCode") ?? "") }
+    var squareSizeCode: Int? { Int(defaults.string(forKey: "squareSizeCode") ?? "") ?? Paper.square.defaultSizeCode }
 
     static let names = ["key": "printerPassword", "network": "ssid", "paper": "paper", "return": "returnToNetwork"]
 

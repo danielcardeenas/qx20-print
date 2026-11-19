@@ -41,10 +41,10 @@ PAPERS = {
     # Bleed measured with calibrate.py: 2 mm lost left/right, 1 mm top/bottom.
     "card": dict(width=644, height=826, size_code=18,
                  bleed_mm=(2.0, 1.0, 2.0, 1.0)),
-    # XS-20L, 72x85 mm sheet. Media code not yet verified on hardware.
+    # XS-20L, 72x85 mm sheet. Media code 17 verified on hardware (2026-11-19).
     # Bleed assumed equal to card (848 px @287dpi = 75 mm on a 72 mm sheet,
     # same ~1.5 mm/side overhang); re-run calibrate.py square to confirm.
-    "square": dict(width=848, height=826, size_code=None,
+    "square": dict(width=848, height=826, size_code=17,
                    bleed_mm=(2.0, 1.0, 2.0, 1.0)),
 }
 DEFAULT_PAPER = "card"

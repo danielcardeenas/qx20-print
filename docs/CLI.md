@@ -65,7 +65,7 @@ Images: JPEG, PNG (transparency kept), HEIC, WebP, SVG (rasterized at print size
 | `--stay` | Stay on the printer's Wi-Fi afterwards |
 | `--network SSID` | Printer network (default: saved, else the strongest `QX20-…`) |
 | `--key KEY` | Printer key (default: saved) |
-| `--size-code N` | Media code (square paper isn't verified yet) |
+| `--size-code N` | Override the media code (card 18, square 17) |
 
 By default `qx20 print` joins the printer's Wi-Fi, prints and returns the Mac
 to its usual network (offline for about a minute per sheet).

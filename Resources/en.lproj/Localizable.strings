@@ -6,6 +6,7 @@
 "%lld of %lld failed (see the log)" = "%lld of %lld failed (see the log)";
 "%lld per sheet" = "%lld per sheet";
 "%lld prints finished" = "%lld prints finished";
+"17" = "17";
 "A thin grey line around each image, to cut them out by hand." = "A thin grey line around each image, to cut them out by hand.";
 "Access denied" = "Access denied";
 "Access granted" = "Access granted";
@@ -30,7 +31,7 @@
 "Cancel" = "Cancel";
 "Cancelled the remaining %lld image(s)." = "Cancelled the remaining %lld image(s).";
 "Card" = "Card";
-"Card paper uses code 18. The square paper code isn’t verified yet; try it carefully." = "Card paper uses code 18. The square paper code isn’t verified yet; try it carefully.";
+"Card paper uses code 18 and square paper code 17. Leave empty unless you know what you’re doing." = "Card paper uses code 18 and square paper code 17. Leave empty unless you know what you’re doing.";
 "Card · XC-20L" = "Card · XC-20L";
 "Check" = "Check";
 "Check Printer" = "Check Printer";
@@ -236,5 +237,4 @@
 "the printer closed the connection" = "the printer closed the connection";
 "the printer did not request the image" = "the printer did not request the image";
 "the printer did not request the probe" = "the printer did not request the probe";
-"unknown" = "unknown";
 "⌫ remove · C crop · + − size · arrows move (⇧ ×10) · Tab next · Esc deselect" = "⌫ remove · C crop · + − size · arrows move (⇧ ×10) · Tab next · Esc deselect";

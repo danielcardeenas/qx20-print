@@ -29,8 +29,8 @@ struct SettingsView: View {
 
             Section("Advanced") {
                 TextField("Media code for square paper", text: $model.squareSizeCode,
-                          prompt: Text("unknown"))
-                Text("Card paper uses code 18. The square paper code isn’t verified yet; try it carefully.")
+                          prompt: Text("17"))
+                Text("Card paper uses code 18 and square paper code 17. Leave empty unless you know what you’re doing.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

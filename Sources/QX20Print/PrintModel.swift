@@ -58,7 +58,7 @@ final class PrintModel: ObservableObject {
     @Published var cutGuides: Bool { didSet { settingsChanged(relayout: false) } }
     @Published var ssid: String { didSet { save(); if ssid != oldValue { lastCheckOK = nil } } }
     @Published var returnToNetwork: Bool { didSet { save() } }
-    /// Media code for square paper: unknown until tested on hardware.
+    /// Optional override of the square media code (empty = default 17).
     @Published var squareSizeCode: String { didSet { save() } }
 
     // Rendered pages (exact print output) for thumbnails and the "Result" view
@@ -261,7 +261,7 @@ final class PrintModel: ObservableObject {
     var sizeCode: Int? {
         switch paper {
         case .card: return paper.defaultSizeCode
-        case .square: return Int(squareSizeCode.trimmingCharacters(in: .whitespaces))
+        case .square: return Int(squareSizeCode.trimmingCharacters(in: .whitespaces)) ?? paper.defaultSizeCode
         }
     }
 

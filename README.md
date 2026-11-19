@@ -177,8 +177,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 - Card bleed: about 2 mm left/right and ≤1 mm top/bottom.
 - Print states: `01` ready → `03`/`05`/`07` colour passes → `09` overcoat →
   `10` → `0A` done; `0C`/`0D` = error (red light).
-- The media code for **square paper (XS-20L) isn't verified yet** (card is
-  18). It can be set in *Settings › Advanced*; reports are welcome.
+- `StartPrint` media codes: card (XC-20L) **18**, square (XS-20L) **17**
+  (code from [Crocmagnon/selphy-qx20](https://github.com/Crocmagnon/selphy-qx20),
+  verified on hardware). A wrong code makes the status light blink red; turn
+  the printer off and on again.
 
 ## Credits
 

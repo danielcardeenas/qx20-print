@@ -24,7 +24,7 @@ ES = {
     "Cancel": "Cancelar",
     "Cancelled the remaining %lld image(s).": "Se cancelaron las %lld imágenes restantes.",
     "Card": "Card",
-    "Card paper uses code 18. The square paper code isn’t verified yet; try it carefully.": "El papel card usa el código 18. El del papel cuadrado aún no está verificado; pruébalo con cuidado.",
+    "Card paper uses code 18 and square paper code 17. Leave empty unless you know what you’re doing.": "El papel card usa el código 18 y el cuadrado el 17. Déjalo vacío salvo que sepas lo que haces.",
     "Card · XC-20L": "Card · XC-20L",
     "Check": "Comprobar",
     "Check Printer": "Comprobar impresora",
@@ -181,7 +181,7 @@ ES = {
     "the printer closed the connection": "la impresora cerró la conexión",
     "the printer did not request the image": "la impresora no pidió la imagen",
     "the printer did not request the probe": "la impresora no pidió la prueba inicial",
-    "unknown": "desconocido",
+    "17": "17",
     "⌫ remove · C crop · + − size · arrows move (⇧ ×10) · Tab next · Esc deselect": "⌫ quitar · C recortar · + − tamaño · flechas mover (⇧ ×10) · Tab siguiente · Esc soltar",
     # Connect printer assistant
     "Access granted": "Acceso concedido",
