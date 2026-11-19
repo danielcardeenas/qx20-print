@@ -46,6 +46,16 @@ public enum Paper: String, CaseIterable, Identifiable, Codable, Sendable {
     /// StartPrint media code (both verified on hardware).
     public var defaultSizeCode: Int? { self == .card ? 18 : 17 }
 
+    /// Before 0.3.1 the square code was unknown and people typed guesses into
+    /// Settings › Advanced (e.g. 16, which makes the printer blink red). Those
+    /// saved guesses would override the verified default, so drop them once.
+    public static func clearSquareCodeGuess(in defaults: UserDefaults) {
+        let flag = "squareSizeCodeMigrated"
+        guard !defaults.bool(forKey: flag) else { return }
+        defaults.removeObject(forKey: "squareSizeCode")
+        defaults.set(true, forKey: flag)
+    }
+
     /// Millimetres lost on each side with borderless printing.
     /// Card measured with calibrate.py; square assumed equal (same overhang).
     public var bleedMM: (left: Double, top: Double, right: Double, bottom: Double) {

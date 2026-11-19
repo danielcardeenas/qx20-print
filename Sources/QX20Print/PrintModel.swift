@@ -161,6 +161,7 @@ final class PrintModel: ObservableObject {
         cutGuides = defaults.object(forKey: "cutGuides") as? Bool ?? false
         ssid = defaults.string(forKey: "ssid") ?? ""
         returnToNetwork = defaults.object(forKey: "returnToNetwork") as? Bool ?? true
+        Paper.clearSquareCodeGuess(in: defaults)
         squareSizeCode = defaults.string(forKey: "squareSizeCode") ?? ""
         restore()
         WiFi.shared.onAuthorizationChange = { [weak self] status in

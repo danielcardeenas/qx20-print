@@ -187,7 +187,12 @@ final class Output {
 // MARK: - Settings shared with the app
 
 struct Settings {
-    let defaults = UserDefaults(suiteName: appDomain) ?? .standard
+    let defaults: UserDefaults
+
+    init() {
+        defaults = UserDefaults(suiteName: appDomain) ?? .standard
+        Paper.clearSquareCodeGuess(in: defaults)
+    }
 
     var key: String { defaults.string(forKey: "printerPassword") ?? "" }
     var network: String { defaults.string(forKey: "ssid") ?? "" }
